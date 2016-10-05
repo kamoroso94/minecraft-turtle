@@ -29,7 +29,7 @@ function init() {
 // compute and show one generation of evolution
 function evolve() {
 	var phenotype = generate();
-	var endCondition = true;
+	var endCondition = true;	// temporary
 	
 	show(phenotype);
 	
