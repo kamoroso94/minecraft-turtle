@@ -1,69 +1,114 @@
+// globals
 var GRID_WIDTH = 16;
 var GRID_HEIGHT = 16;
 var LIFE_SPAN = GRID_WIDTH * GRID_HEIGHT;
 var POP_SIZE = 1000;
 var MUTATION_RATE = 0.01;
-var currentGen;
+var currentGen, canvas, ctx;
 
-function evolve() {
+// wait for page to load before starting simulation
+window.addEventListener("load", function() {
+	canvas = document.querySelector("canvas");
+	ctx = canvas.getContext("2d");
+	init();
+	requestAnimationFrame(evolve);
+});
+
+// initialize variables
+function init() {
 	currentGen = [];
 	
 	for(var i = 0; i < POP_SIZE; i++) {
 		var turtle = new Turtle(0, 0, GRID_WIDTH, GRID_HEIGHT);
+		
 		turtle.initRandom();
 		currentGen.push(turtle);
 	}
-	
-	generate();
 }
 
+// compute and show one generation of evolution
+function evolve() {
+	var phenotype = generate();
+	var endCondition = true;
+	
+	show(phenotype);
+	
+	if(!endCondition) {
+		requestAnimationFrame(evolve);
+	}
+}
+
+// display the current generation's best phenotype
+function show() {
+	
+}
+
+// evolve one generation
 function generate() {
 	var neighborhood = new NeighborGrid(GRID_WIDTH, GRID_HEIGHT);
 	var fitnesses = [];
 	var nextGen = [];
+	var maxFitPheno = null;
+	var maxFitValue = -1;
 	
 	for(var i = 0; i < POP_SIZE; i++) {
 		var turtle = currentGen[i];
+		var fitness;
 		
 		turtle.run(neighborhood);
-		fitnesses.push(turtle.getFitness(neighborhood));
+		fitness = turtle.getFitness(neighborhood);
+		fitnesses.push(fitness);
+		
+		if(fitness > maxFitValue) {
+			maxFitValue = fitness;
+			maxFitPheno = neighborhood;
+		}
 	}
 	
 	for(var i = 0; i < POP_SIZE; i++) {
 		var parentA = currentGen[simulate(fitnesses)];
-		var parentB, child;
+		var parentB = currentGen[simulate(fitnesses)];
+		var child = parentA.crossover(parentB);
 		
-		do {
-			parentB = currentGen[simulate(fitnesses)];
-		} while(parentA == parentB);
-		
-		child = parentA.crossover(parentB);
 		child.mutate(MUTATION_RATE);
 		nextGen.push(child);
 	}
 	
 	currentGen = nextGen;
+	
+	return maxFitPheno;
 }
 
+// helper function to simulate a probabilistic event
+// accepts a list of likelihoods
+// returns a probabilistically chosen index
 function simulate(chances) {
+	var rand, chance;
 	var sum = 0;
-	for(var i=0; i<chances.length; i++) {
-		sum+=chances[i];
+	
+	for(var i = 0; i < chances.length; i++) {
+		sum += chances[i];
 	}
-	if(sum==0) {
-		return Math.floor(Math.random()*chances.length);
+	
+	if(sum == 0) {
+		return Math.floor(Math.random() * chances.length);
 	}
-	var rand = Math.random();
-	var chance = 0;
-	for(var i=0; i<chances.length; i++) {
-		chance+=chances[i]/sum;
-		if(rand<chance) {
+	
+	rand = Math.random();
+	chance = 0;
+	
+	for(var i = 0; i < chances.length; i++) {
+		chance += chances[i] / sum;
+		
+		if(rand < chance) {
 			return i;
 		}
 	}
+	
 	return -1;
 }
 
+// the life form that will evolve
 function Turtle(x, y, w, h) {
 	this.origin = {x: x, y: y, z: 1};
 	this.current = {x: x, y: y, z: 1};
@@ -74,6 +119,7 @@ function Turtle(x, y, w, h) {
 		new Grid(w, h)
 	];
 	
+	// initialize to valid random values
 	this.initRandom = function() {
 		var x = Math.floor(this.width / 2 * Math.random());
 		var y = 0;
@@ -93,6 +139,7 @@ function Turtle(x, y, w, h) {
 			}
 		}
 	};
+	// compute a random adjacent destination given a location
 	this.randomDest = function(x, y, z) {
 		var dest = {x: x, y: y, z: z};
 		var rand = Math.random();
@@ -112,6 +159,7 @@ function Turtle(x, y, w, h) {
 		
 		return dest;
 	};
+	// simulate the life cycle
 	this.run = function(neighborhood) {
 		if(this.isDead) {
 			return;
@@ -129,6 +177,7 @@ function Turtle(x, y, w, h) {
 		
 		this.isDead = true;
 	};
+	// fitness function
 	this.getFitness = function(neighborhood) {
 		var counts = [];
 		
@@ -147,6 +196,7 @@ function Turtle(x, y, w, h) {
 		
 		return counts[1] + 0.5 * counts[2] + 0.25 * counts[3];
 	};
+	// produces an offspring with a mixed genotype of its parents
 	this.crossover = function(turtle) {
 		var x = Math.random() < 0.5 ? this.origin.x : turtle.origin.x;
 		var child = new Turtle(x, 0, this.grids[0].width, this.grids[0].height);
@@ -162,6 +212,7 @@ function Turtle(x, y, w, h) {
 			}
 		}
 	};
+	// introduces variation into the genotype
 	this.mutate = function(rate) {
 		for(var i = 0; i < this.grids.length; i++) {
 			var grid = this.grids[i];
@@ -177,6 +228,7 @@ function Turtle(x, y, w, h) {
 	};
 }
 
+// 2D data structure that keeps track of how many adjacent grid spaces are flagged
 function NeighborGrid(w, h) {
 	this.width = w;
 	this.h = h;
@@ -212,6 +264,7 @@ function NeighborGrid(w, h) {
 	};
 }
 
+// 2D data structure for holding data
 function Grid(w, h) {
 	this.width = w;
 	this.height = h;
@@ -227,10 +280,5 @@ function Grid(w, h) {
 		if(x >= 0 && x < this.width && y >= 0 && y < this.height) {
 			this.array[y * this.width + x] = v;
 		}
-	};
-	this.fill = function(callback) {
-		this.array.forEach(function(v, i, a) {
-			a[i] = val;
-		});
 	};
 }
