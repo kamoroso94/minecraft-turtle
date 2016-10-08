@@ -9,9 +9,14 @@
 	
 	<body>
 		<h1>Minecraft Turtle</h1>
-		<canvas width="512" height="512"></canvas>
+		<canvas width="512" height="512" data-paused></canvas>
+		<div>
+			<button id="toggle">Play</button>
+			<button id="restart">Restart</button>
+		</div>
 		<p><strong>Generation:</strong> <span id="generation">N/A</span></p>
 		<p><strong>Fitness Score:</strong> <span id="fitness">N/A</span></p>
 		<p><label><input type="checkbox" id="mc-bg" /> Enable background</label></p>
+		<p><label><input type="checkbox" id="color" /> Enable color</label></p>
 	</body>
 </html>
