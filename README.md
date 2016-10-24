@@ -1,2 +1,2 @@
-# minecraft-turtle
-Genetic algorithm for finding the optimal mining pattern.
+# Minecraft Turtle
+Genetic algorithm for finding an optimal mining pattern
