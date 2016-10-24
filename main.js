@@ -3,50 +3,65 @@
 // globals
 var GRID_WIDTH = 16;
 var GRID_HEIGHT = 16;
-var LIFE_SPAN = GRID_WIDTH;
-var POP_SIZE = 1000;
-var MUTATION_RATE = 0.001;
-var TPS = 30;
-var canvas, ctx, toggleTag, restartTag, genTag, fitTag, bgTag, coloredTag, drawId, updateId, currentGen, genId, bestPheno, bestFit, cellWidth, cellHeight, frameDrawn;
+var LIFE_SPAN = 12;
+var POP_SIZE = 1024;
+var MUTATION_RATE = 0.01;
+var TPS = 5;
+var canvas, ctx, genTag, fitTag, bgTag, coloredTag, drawId, updateId,
+	currentGen, genId, bestPheno, bestFit, cellWidth, cellHeight, frameDrawn;
 
 // wait for page to load
 window.addEventListener("load", function() {
+	var toggleTag;
+	
 	// get tag references
 	canvas = document.querySelector("canvas");
 	ctx = canvas.getContext("2d");
 	toggleTag = document.getElementById("toggle");
-	restartTag = document.getElementById("restart");
 	genTag = document.getElementById("generation");
 	fitTag = document.getElementById("fitness");
-	bgTag = document.getElementById("mc-bg");
+	bgTag = document.getElementById("background");
 	coloredTag = document.getElementById("color");
 	
 	init();
 	
-	// setup event listeners
+	canvas.addEventListener("contextmenu", function(e) {
+		e.preventDefault();
+		return false;
+	});
+	
+	document.getElementById("parameters").addEventListener("submit", function(e) {
+		e.preventDefault();
+		return false;
+	});
+	
 	bgTag.addEventListener("change", function() {
-		canvas.className = this.checked ? "minecraft" : "";
+		canvas.classList.toggle("minecraft", this.checked);
 	});
 	
 	toggleTag.addEventListener("click", function() {
-		if(canvas.hasAttribute("data-paused")) {
+		var icon = this.querySelector("span");
+		
+		if(icon.classList.contains("glyphicon-play")) {
 			// play
 			resume();
-			this.textContent = "Pause";
-			canvas.removeAttribute("data-paused");
+			icon.classList.remove("glyphicon-play");
+			icon.classList.add("glyphicon-pause");
 		} else {
 			// pause
 			pause();
-			this.textContent = "Play";
-			canvas.setAttribute("data-paused", true);
+			icon.classList.remove("glyphicon-pause");
+			icon.classList.add("glyphicon-play");
 		}
 	});
 	
-	restartTag.addEventListener("click", function() {
+	document.getElementById("restart").addEventListener("click", function() {
+		var icon = toggleTag.querySelector("span");
+		
 		// pause and reset
 		pause();
-		toggleTag.textContent = "Play";
-		canvas.setAttribute("data-paused", true);
+		icon.classList.remove("glyphicon-pause");
+		icon.classList.add("glyphicon-play");
 		init();
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		genTag.textContent = "N/A";
@@ -61,6 +76,8 @@ function init() {
 	cellWidth = canvas.width / GRID_WIDTH;
 	cellHeight = canvas.height / GRID_HEIGHT;
 	frameDrawn = true;
+	
+	canvas.className = bgTag.checked ? "minecraft" : "";
 	
 	// initialize population
 	for(var i = 0; i < POP_SIZE; i++) {
