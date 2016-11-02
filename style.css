@@ -3,10 +3,6 @@
 }
 
 canvas {
+	box-sizing: content-box;
 	width: 100%;
-	background: #ffffff;
-}
-
-canvas.minecraft {
-	background: url("bg.png");
 }

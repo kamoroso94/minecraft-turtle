@@ -9,6 +9,8 @@ var MUTATION_RATE = 0.01;
 var TPS = 5;
 var canvas, ctx, genTag, fitTag, bgTag, coloredTag, drawId, updateId,
 	currentGen, genId, bestPheno, bestFit, cellWidth, cellHeight, frameDrawn;
+var bgImg = new Image();
+bgImg.src = "images/bg.png";
 
 // wait for page to load
 window.addEventListener("load", function() {
@@ -33,10 +35,6 @@ window.addEventListener("load", function() {
 	document.getElementById("parameters").addEventListener("submit", function(e) {
 		e.preventDefault();
 		return false;
-	});
-	
-	bgTag.addEventListener("change", function() {
-		canvas.classList.toggle("minecraft", this.checked);
 	});
 	
 	toggleTag.addEventListener("click", function() {
@@ -76,8 +74,6 @@ function init() {
 	cellWidth = canvas.width / GRID_WIDTH;
 	cellHeight = canvas.height / GRID_HEIGHT;
 	frameDrawn = true;
-	
-	canvas.classList.toggle("minecraft", bgTag.checked);
 	
 	// initialize population
 	for(var i = 0; i < POP_SIZE; i++) {
@@ -123,7 +119,12 @@ function draw() {
 		return;
 	}
 	
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	if(bgTag.checked) {
+		ctx.drawImage(bgImg, 0, 0);
+	} else {
+		ctx.fillStyle = "#ffffff";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+	}
 	
 	// shade each cell on canvas
 	for(var x = 0; x < bestPheno.width; x++) {
