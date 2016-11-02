@@ -21,9 +21,8 @@
 			<h1>Minecraft Turtle</h1>
 			<p class="lead">Genetic algorithm for finding an optimal mining pattern</p>
 			
-			<canvas width="512" height="512" class="img-responsive"></canvas>
-			
-			<form id="parameters">
+			<div id="simulation">
+				<canvas class="img-thumbnail" width="512" height="512"></canvas>
 				<div class="form-group btn-group">
 					<button type="button" class="btn" id="toggle">
 						<span class="glyphicon glyphicon-play"></span>
@@ -32,6 +31,9 @@
 						<span class="glyphicon glyphicon-stop"></span>
 					</button>
 				</div>
+			</div>
+			
+			<form id="parameters">
 				<div class="form-group">
 					<strong>Generation:</strong>
 					<span id="generation">N/A</span>

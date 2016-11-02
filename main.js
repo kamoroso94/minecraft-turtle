@@ -15,7 +15,7 @@ window.addEventListener("load", function() {
 	var toggleTag;
 	
 	// get tag references
-	canvas = document.querySelector("canvas");
+	canvas = document.getElementById("simulation").querySelector("canvas");
 	ctx = canvas.getContext("2d");
 	toggleTag = document.getElementById("toggle");
 	genTag = document.getElementById("generation");
@@ -77,7 +77,7 @@ function init() {
 	cellHeight = canvas.height / GRID_HEIGHT;
 	frameDrawn = true;
 	
-	canvas.className = bgTag.checked ? "minecraft" : "";
+	canvas.classList.toggle("minecraft", bgTag.checked);
 	
 	// initialize population
 	for(var i = 0; i < POP_SIZE; i++) {
