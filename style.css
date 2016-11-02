@@ -1,7 +1,7 @@
 canvas {
 	display: inline-block;
 	background: #ffffff;
-	box-shadow: 0px 0px 5px black;
+	border: 2px solid #7f7f7f;
 }
 
 canvas.minecraft {
